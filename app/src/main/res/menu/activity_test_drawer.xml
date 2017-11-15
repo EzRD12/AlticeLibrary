@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="Pagina Principal" />
+        <item
+            android:id="@+id/nav_catalog"
+            android:icon="@drawable/ic_menu_catalog"
+            android:title="Catalogo" />
+        <item
+            android:id="@+id/nav_account_profile"
+            android:icon="@drawable/ic_account"
+            android:title="Perfil" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Galeria" />
+        <item
+            android:id="@+id/nav_log_out"
+            android:icon="@drawable/ic_menu_log_out"
+            android:title="Cerrar sesión" />
+    </group>
+
+    <item android:title="Sobre nosotros">
+        <menu>
+            <item
+                android:id="@+id/nav_contact_us"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Contáctanos" />
+            <item
+                android:id="@+id/nav_about_us"
+                android:icon="@drawable/ic_menu_about_us"
+                android:title="Quienes Somos?" />
+        </menu>
+    </item>
+
+</menu>

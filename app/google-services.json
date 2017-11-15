@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "834139358467",
+    "firebase_url": "https://biblioteca-altice.firebaseio.com",
+    "project_id": "biblioteca-altice",
+    "storage_bucket": "biblioteca-altice.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834139358467:android:c475fe5d981589c0",
+        "android_client_info": {
+          "package_name": "com.example.ezrodriguez.bibliotecaaltice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "834139358467-sf9kljg5jsf0jekdpbjud5drt8npdjl3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ezrodriguez.bibliotecaaltice",
+            "certificate_hash": "eeddcdd30d7ba23ef6e7840f1b36e139e5cd26a5"
+          }
+        },
+        {
+          "client_id": "834139358467-v0pcvtjmssg222ccc482lplh58mtl5gh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7IVD4L9LMEbDAHusMVg1izuJi9nhmZKU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "834139358467-v0pcvtjmssg222ccc482lplh58mtl5gh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

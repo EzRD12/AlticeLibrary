@@ -1,0 +1,146 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context="com.example.ezrodriguez.bibliotecaaltice.BookFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginVertical="@dimen/activity_vertical_margin">
+
+                <ImageView
+                    android:id="@+id/book_portada_detail"
+                    android:layout_width="150sp"
+                    android:layout_height="120sp"
+                    android:src="@mipmap/ic_launcher"
+                    />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginHorizontal="@dimen/activity_horizontal_margin">
+                    <TextView
+                        android:id="@+id/book_title_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Game of Thrones"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:layout_gravity="center"
+                        android:textColor="@color/home_title_color"/>
+
+                    <android.support.design.widget.CoordinatorLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        >
+                        <TextView
+                            android:id="@+id/book_autor_detail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:text="Lorem "/>
+
+                        <android.support.design.widget.FloatingActionButton
+                            android:id="@+id/book_fav"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end|bottom"
+                            android:layout_marginTop="25sp"
+                            app:srcCompat="@mipmap/ic_unfavorite"
+                            />
+
+                    </android.support.design.widget.CoordinatorLayout>
+
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Precio del libro: "
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/title_book_detail"/>
+                <TextView
+                    android:id="@+id/book_price_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Renta: "
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/title_book_detail"/>
+                <TextView
+                    android:id="@+id/book_rental_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/book-body_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                android:layout_gravity="center_vertical|right"
+                android:text="Lorem "/>
+
+
+        </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@color/title_book_detail"
+        android:layout_gravity="center"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/lbl_mensaje_editoriales"
+        android:textStyle="italic"
+        android:textColor="@color/text_book_detail"
+        android:gravity="center"
+        android:layout_gravity="center"/>
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Biblioteca Altice</string>
+    <string name="messageSignIn">If you do not have account</string>
+    <string name="messageRegister">Sign Up</string>
+    <string name="lblUsername">Username</string>
+    <string name="lblPassword">Password</string>
+    <string name="not_log_in">No se pudo iniciar sesion"</string>
+    <string name="title_activity_test">testActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="error_log_out">Ha ocurrido un error al intentar cerrar sesion</string>
+    <string name="error_not_firebase_auth">Error: No se pudo autenticar con firebase</string>
+    <string name="log_in">Log in</string>
+    <string name="register_name">Name</string>
+    <string name="register_last_name">Last Name</string>
+    <string name="register_mail">Mail</string>
+    <string name="login_username">Mail Address</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="lbl_mensaje_editoriales">Todos los libros y articulos son de origen oficial de editoriales autorizados</string>
+
+</resources>
