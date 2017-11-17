@@ -4,11 +4,10 @@
     android:layout_height="wrap_content"
     >
     <LinearLayout
+        android:id="@+id/book_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:id="@+id/book_content"
-        >
+        android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -63,7 +62,9 @@
         android:textSize="16sp"
         android:textStyle="italic"
         android:layout_gravity="center_vertical|right"
-        android:text="Lorem "/>
+        android:text="Lorem "
+        android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+        />
 
 
     </LinearLayout>

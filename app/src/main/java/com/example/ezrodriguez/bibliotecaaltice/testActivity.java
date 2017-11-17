@@ -2,22 +2,22 @@ package com.example.ezrodriguez.bibliotecaaltice;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,14 +25,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.ezrodriguez.bibliotecaaltice.entity.UserProfile;
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApi;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.OptionalPendingResult;
-import com.google.android.gms.common.api.ResolvingResultCallbacks;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,7 +40,8 @@ import com.google.firebase.database.ValueEventListener;
 
 public class testActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
-        , GoogleApiClient.OnConnectionFailedListener , HomeFragment.OnFragmentInteractionListener{
+        , GoogleApiClient.OnConnectionFailedListener , HomeFragment.OnFragmentInteractionListener
+        , ProfileFragment.OnFragmentInteractionListener{
 
     private GoogleApiClient mGoogleApiClient;
     private ImageView hProfileImage;
@@ -54,6 +50,7 @@ public class testActivity extends AppCompatActivity
     private DatabaseReference userReference;
     private FirebaseAuth.AuthStateListener mFirebaseAuthListener;
     private NavigationView navigationView;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +58,8 @@ public class testActivity extends AppCompatActivity
         setContentView(R.layout.activity_test);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        toolbar.setBackgroundColor(Color.parseColor("#131313"));
+        setTitle(R.string.app_name);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         GoogleSignInOptions mGoogleSignInOptions= new GoogleSignInOptions.Builder(
@@ -79,7 +77,7 @@ public class testActivity extends AppCompatActivity
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                user = firebaseAuth.getCurrentUser();
                 if(user != null){
                     //goMainScreen();
                     setUserData(user);
@@ -89,14 +87,14 @@ public class testActivity extends AppCompatActivity
             }
         };
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -149,7 +147,7 @@ public class testActivity extends AppCompatActivity
                     .load(user.getPhotoUrl())
                     .into(hProfileImage);
         }else{
-            hProfileImage.setImageResource(R.drawable.user_unknow);
+            hProfileImage.setImageResource(R.drawable.man);
         }
 
     }
@@ -173,7 +171,7 @@ public class testActivity extends AppCompatActivity
             mFirebaseAuth.removeAuthStateListener(mFirebaseAuthListener);
     }
 
-    private void goLogInScreen() {
+    public void goLogInScreen() {
         Intent intent = new Intent(this,LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK
                 | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -186,9 +184,15 @@ public class testActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+                int count = getFragmentManager().getBackStackEntryCount();
+                if (count == 0) {
+                    super.onBackPressed();
+                    getFragmentManager().popBackStack();
+                } else {
+                    getFragmentManager().popBackStack();
+                }
+            }
         }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -219,12 +223,39 @@ public class testActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
+            getSupportFragmentManager().
+                beginTransaction().
+                replace(R.id.home_fragment,
+                        HomeFragment.newInstance("",""))
+                .addToBackStack("Home")
+                .commit();
             // Handle the camera action
         } else if (id == R.id.nav_catalog) {
+            getSupportFragmentManager().
+                    beginTransaction().
+                    replace(R.id.home_fragment,
+                            CatalogFragment.newInstance("",""))
+                    .addToBackStack("Catalog")
+                    .commit();
 
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_account_profile) {
+            Bundle bundle = new Bundle();
+            bundle.putStringArray("UserData",new String[]{hUserName.getText().toString()
+                    ,hUserMail.getText().toString()
+                    , user.getPhotoUrl().toString()});
+
+            FragmentManager fragmentManager = this.getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            ProfileFragment profileFragment = new ProfileFragment();
+            profileFragment.setArguments(bundle);
+
+
+            fragmentTransaction.replace(R.id.home_fragment,profileFragment)
+                    .addToBackStack(null)
+                    .commit();
 
         } else if (id == R.id.nav_log_out) {
             AlertDialog alert = new AlertDialog.Builder(this)

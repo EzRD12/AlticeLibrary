@@ -3,6 +3,7 @@ package com.example.ezrodriguez.bibliotecaaltice;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -25,6 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public class HomeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private RecyclerView mRecyclerView;
+    private FloatingActionButton buttonToAdd;
 
 
     private OnFragmentInteractionListener mListener;
@@ -94,9 +97,9 @@ public class HomeFragment extends Fragment {
         mRecyclerView =  view.findViewById(R.id.home_recyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(super.getContext()
                 ,LinearLayoutManager.VERTICAL,false));
+        //buttonToAdd = view.findViewById(R.id.button_add_books);
 
         reference = FirebaseDatabase.getInstance().getReference("books");
-        reference.child("dfvbflblrbkl");
 
         return view;
     }
@@ -125,35 +128,70 @@ public class HomeFragment extends Fragment {
         mListener = null;
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
 
-        // Read from the database
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                Iterable<DataSnapshot> children =
-                        dataSnapshot.getChildren();
-                Book book;
-                List<Book> list = new ArrayList<>();
-                for (DataSnapshot child : children) {
-                    book = child.getValue(Book.class);
-                    list.add(book);
-                }
-                mRecyclerView.setAdapter(new myRecyclerViewAdapter(list));
-            }
+        DatabaseReference referenceCatalog = FirebaseDatabase.getInstance().getReference();
+        Bundle bundle = getArguments();
 
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Toast.makeText(getContext()
-                        ,"Failed to read list of books."
-                        ,Toast.LENGTH_SHORT).show();
-            }
-        });
+        if(bundle.getString("Catalog") != null){
+    //        buttonToAdd.setVisibility(View.VISIBLE);
+            Query query = referenceCatalog.child("books")
+                    .orderByChild("category")
+                    .equalTo(bundle.getString("position"));
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Iterable<DataSnapshot> children =
+                            dataSnapshot.getChildren();
+                    Book book;
+                    List<Book> list = new ArrayList<>();
+                    for (DataSnapshot child : children) {
+                        book = child.getValue(Book.class);
+                        list.add(book);
+                    }
+                    mRecyclerView.setAdapter(new myRecyclerViewAdapter(list));
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(getContext()
+                            ,"Failed to read list of books."
+                            ,Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+//            buttonToAdd.setVisibility(View.GONE);
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // This method is called once with the initial value and again
+                    // whenever data at this location is updated.
+                    Iterable<DataSnapshot> children =
+                            dataSnapshot.getChildren();
+                    Book book;
+                    List<Book> list = new ArrayList<>();
+                    for (DataSnapshot child : children) {
+                        book = child.getValue(Book.class);
+                        list.add(book);
+                    }
+                    mRecyclerView.setAdapter(new myRecyclerViewAdapter(list));
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    Toast.makeText(getContext()
+                            ,"Failed to read list of books."
+                            ,Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }
+
+        // Read from the database
     }
 
     /**
@@ -216,7 +254,10 @@ public class HomeFragment extends Fragment {
                     BookFragment bookFragment = new BookFragment();
                     bookFragment.setArguments(bundle);
 
-                    fragmentTransaction.replace(R.id.home_fragment,bookFragment).commit();
+
+                    fragmentTransaction.replace(R.id.home_fragment,bookFragment)
+                            .addToBackStack(null)
+                            .commit();
 
                 }
             });

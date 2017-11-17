@@ -170,6 +170,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             goMainScreen();
 
                         } else {
+                            mLoginView.setVisibility(View.VISIBLE);
+                            mProgressBar.setVisibility(View.GONE);
                             // If sign in fails, display a message to the user.
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();

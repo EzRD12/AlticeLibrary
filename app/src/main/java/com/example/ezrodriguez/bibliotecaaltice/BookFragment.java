@@ -1,11 +1,9 @@
 package com.example.ezrodriguez.bibliotecaaltice;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +11,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.ezrodriguez.bibliotecaaltice.entity.Book;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -31,6 +41,10 @@ public class BookFragment extends Fragment {
 
     private TextView title, autor, price, rental, body;
     private ImageView portada;
+    private FloatingActionButton button_fav;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser user;
+    boolean hasFav = false;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -69,11 +83,14 @@ public class BookFragment extends Fragment {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_book, container, false);
+
+        user = mFirebaseAuth.getCurrentUser();
 
         title = view.findViewById(R.id.book_title_detail);
         body = view.findViewById(R.id.book_body_detail);
@@ -81,6 +98,45 @@ public class BookFragment extends Fragment {
         price = view.findViewById(R.id.book_price_detail);
         rental = view.findViewById(R.id.book_rental_detail);
         portada = view.findViewById(R.id.book_portada_detail);
+        button_fav = view.findViewById(R.id.book_fav);
+        button_fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!hasFav) {
+                    button_fav.setImageResource(R.mipmap.ic_favorite_book);
+                }else { button_fav.setImageResource(R.mipmap.ic_unfavorite); }
+
+                Query query = FirebaseDatabase.getInstance().getReference("favorites")
+                        .child("title").equalTo(title.getText().toString());
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Iterable<DataSnapshot> children =
+                                dataSnapshot.getChildren();
+                        Book book;
+                        List<Book> list = new ArrayList<>();
+                        for (DataSnapshot child : children) {
+                            book = child.getValue(Book.class);
+                            list.add(book);
+                        }
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference myRef = database.getReference("favorites");
+                        if(list.isEmpty()){
+                            // Write a message to the database
+                            myRef.push().setValue("bookKey",dataSnapshot.getKey());
+                            myRef.push().setValue("uiIdUser",user.getUid());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                hasFav = !hasFav;
+            }
+        });
 
         Bundle bundle = getArguments();
         String[] dataBook = bundle.getStringArray("dataBook");
@@ -111,16 +167,6 @@ public class BookFragment extends Fragment {
             mListener.onFragmentInteraction(uri);
         }
     }
-
-//    public void onBackPressed() {
-//        getSupportFragmentManager().
-//                beginTransaction().
-//                add(R.id.home_fragment,
-//                        HomeFragment.newInstance("",""))
-//                .addToBackStack("Home")
-//                .commit();
-//    }
-
 
     @Override
     public void onDetach() {

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginHorizontal="5sp"
+    android:id="@+id/category_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/image_categorie"
+        android:layout_width="180sp"
+        android:layout_height="130sp"
+        android:src="@mipmap/ic_launcher"
+        />
+    <TextView
+        android:id="@+id/section_categorie"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Terror"
+        android:textStyle="bold"
+        android:textColor="#101010"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:layout_marginLeft="10sp"
+        android:fontFamily="sans-serif-light"
+        />
+</LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2sp"
+        android:background="#411a1919"
+        />
+</LinearLayout>
