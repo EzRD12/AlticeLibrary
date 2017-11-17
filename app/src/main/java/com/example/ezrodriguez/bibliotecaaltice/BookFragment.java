@@ -2,6 +2,7 @@ package com.example.ezrodriguez.bibliotecaaltice;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.ezrodriguez.bibliotecaaltice.entity.Book;
+import com.example.ezrodriguez.bibliotecaaltice.entity.Favorite;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -43,6 +45,7 @@ public class BookFragment extends Fragment {
     private ImageView portada;
     private FloatingActionButton button_fav;
     private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mFirebaseAuthListener;
     private FirebaseUser user;
     boolean hasFav = false;
 
@@ -83,6 +86,11 @@ public class BookFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -90,7 +98,14 @@ public class BookFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_book, container, false);
 
-        user = mFirebaseAuth.getCurrentUser();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+                user = firebaseAuth.getCurrentUser();
+            }
+        };
 
         title = view.findViewById(R.id.book_title_detail);
         body = view.findViewById(R.id.book_body_detail);
@@ -99,40 +114,49 @@ public class BookFragment extends Fragment {
         rental = view.findViewById(R.id.book_rental_detail);
         portada = view.findViewById(R.id.book_portada_detail);
         button_fav = view.findViewById(R.id.book_fav);
+
         button_fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!hasFav) {
                     button_fav.setImageResource(R.mipmap.ic_favorite_book);
+
+                    final String titulo = title.getText().toString();
+
+                    Query query = FirebaseDatabase.getInstance().getReference("favorites")
+                            .child("uiIdUser").equalTo(user.getUid());
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Iterable<DataSnapshot> children =
+                                    dataSnapshot.getChildren();
+                            Favorite favoriteGet;
+                            List<Favorite> list = new ArrayList<>();
+                            for (DataSnapshot child : children) {
+                                favoriteGet = child.getValue(Favorite.class);
+                                if(favoriteGet.getBook_title() == titulo)
+                                    list.add(favoriteGet);
+                            }
+                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            DatabaseReference myRef = database.getReference("favorites");
+                            if(list.isEmpty()){
+                                // Write a message to the database
+                                user = mFirebaseAuth.getCurrentUser();
+                                Favorite favorite = new Favorite();
+                                favorite.setBook_title(titulo);
+                                favorite.setUser_key(user.getUid());
+
+                                myRef.push().setValue(favorite);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
                 }else { button_fav.setImageResource(R.mipmap.ic_unfavorite); }
-
-                Query query = FirebaseDatabase.getInstance().getReference("favorites")
-                        .child("title").equalTo(title.getText().toString());
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Iterable<DataSnapshot> children =
-                                dataSnapshot.getChildren();
-                        Book book;
-                        List<Book> list = new ArrayList<>();
-                        for (DataSnapshot child : children) {
-                            book = child.getValue(Book.class);
-                            list.add(book);
-                        }
-                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        DatabaseReference myRef = database.getReference("favorites");
-                        if(list.isEmpty()){
-                            // Write a message to the database
-                            myRef.push().setValue("bookKey",dataSnapshot.getKey());
-                            myRef.push().setValue("uiIdUser",user.getUid());
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
 
                 hasFav = !hasFav;
             }

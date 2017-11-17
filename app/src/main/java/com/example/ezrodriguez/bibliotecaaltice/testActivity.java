@@ -50,7 +50,7 @@ public class testActivity extends AppCompatActivity
     private DatabaseReference userReference;
     private FirebaseAuth.AuthStateListener mFirebaseAuthListener;
     private NavigationView navigationView;
-    private FirebaseUser user;
+    public FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
