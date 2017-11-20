@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item_fav"
+        android:title="@string/fav"
+        android:icon="@drawable/ic_favorite"/>
+
+    <item
+        android:id="@+id/item_personal"
+        android:title="Personales"
+        android:icon="@drawable/ic_book"/>
+
+    <item
+        android:id="@+id/item_prestaciones"
+        android:title="Prestaciones"
+        android:icon="@drawable/ic_book"/>
+
+
+</menu>

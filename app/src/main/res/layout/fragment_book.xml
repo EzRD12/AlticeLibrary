@@ -6,7 +6,6 @@
     android:orientation="vertical"
     tools:context="com.example.ezrodriguez.bibliotecaaltice.BookFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -127,15 +126,17 @@
         </LinearLayout>
         
         <Button
+            android:id="@+id/button_purchase"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20sp"
-            android:text="BUY THIS ITEM"
+            android:text="COMPRAR"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#f4eded"
             android:background="@color/title_book_detail"/>
         <TextView
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="OR"
@@ -145,11 +146,12 @@
             android:layout_gravity="center"/>
 
         <Button
+            android:id="@+id/button_rent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20sp"
             android:layout_marginTop="5sp"
-            android:text="RENT THIS ITEM"
+            android:text="Solicitar renta"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#f4eded"

@@ -7,6 +7,20 @@ package com.example.ezrodriguez.bibliotecaaltice.entity;
 public class UserProfile {
 
     private String created;
+    private String email;
+    private String name;
+    private int role;
+    private String username;
+    private String url_photo;
+
+
+    public String getUrl_photo() {
+        return url_photo;
+    }
+
+    public void setUrl_photo(String url_photo) {
+        this.url_photo = url_photo;
+    }
 
     public String getCreated() {
         return created;
@@ -47,10 +61,5 @@ public class UserProfile {
     public void setUsername(String username) {
         this.username = username;
     }
-
-    private String email;
-    private String name;
-    private int role;
-    private String username;
 
 }

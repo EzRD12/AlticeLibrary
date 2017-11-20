@@ -36,7 +36,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class testActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
@@ -51,6 +55,7 @@ public class testActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener mFirebaseAuthListener;
     private NavigationView navigationView;
     public FirebaseUser user;
+    private UserProfile mUserProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +66,7 @@ public class testActivity extends AppCompatActivity
         toolbar.setBackgroundColor(Color.parseColor("#131313"));
         setTitle(R.string.app_name);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
+        mUserProfile = new UserProfile();
 
         GoogleSignInOptions mGoogleSignInOptions= new GoogleSignInOptions.Builder(
                 GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -106,7 +112,7 @@ public class testActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void setUserData(FirebaseUser user) {
+    private void setUserData(final FirebaseUser user) {
         View hView = navigationView.getHeaderView(0);
         hUserName = hView.findViewById(R.id.userNameMenu);
         hUserMail = hView.findViewById(R.id.userMailMenu);
@@ -116,7 +122,7 @@ public class testActivity extends AppCompatActivity
         if(user.getDisplayName() != null && user.getDisplayName() != ""){
             hUserName.setText(user.getDisplayName());
         }else{
-            userReference = FirebaseDatabase.getInstance().getReference("userProfile");
+            userReference = FirebaseDatabase.getInstance().getReference().child("userProfile");
             userReference.child(user.getUid()).child("name");
             // Read from the database
             userReference.addValueEventListener(new ValueEventListener() {
@@ -142,13 +148,50 @@ public class testActivity extends AppCompatActivity
                 }
             });
         }
-        if(user.getPhotoUrl() != null) {
-            Glide.with(this)
-                    .load(user.getPhotoUrl())
-                    .into(hProfileImage);
-        }else{
-            hProfileImage.setImageResource(R.drawable.man);
-        }
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        final FirebaseUser user1 = mFirebaseAuth.getCurrentUser();
+        userReference = FirebaseDatabase.getInstance().getReference().child("userProfile");
+        userReference.child(user1.getUid());
+        // Read from the database
+        userReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                Iterable<DataSnapshot> children =
+                        dataSnapshot.getChildren();
+                UserProfile userProfile ;
+                List<UserProfile> list = new ArrayList<>();
+                for (DataSnapshot child : children) {
+                    userProfile = child.getValue(UserProfile.class);
+                    if(userProfile.getEmail().equals(user.getEmail())) {
+                        mUserProfile = userProfile;
+                        list.add(userProfile);
+                    }
+                }
+                if(list.isEmpty()) {
+                       // hProfileImage.setImageResource(R.drawable.man);
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.man)
+                            .into(hProfileImage);
+                    }else{
+                    userProfile = list.get(0);
+
+                    Glide.with(getApplicationContext())
+                            .load(userProfile.getUrl_photo())
+                            .into(hProfileImage);
+                }
+                }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Toast.makeText(testActivity.this
+                        ,"Failed to read value username."
+                        ,Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
     }
 
@@ -238,13 +281,11 @@ public class testActivity extends AppCompatActivity
                     .addToBackStack("Catalog")
                     .commit();
 
-        } else if (id == R.id.nav_gallery) {
-
         } else if (id == R.id.nav_account_profile) {
             Bundle bundle = new Bundle();
             bundle.putStringArray("UserData",new String[]{hUserName.getText().toString()
                     ,hUserMail.getText().toString()
-                    , user.getPhotoUrl().toString()});
+                    , mUserProfile.getUrl_photo()});
 
             FragmentManager fragmentManager = this.getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -252,10 +293,10 @@ public class testActivity extends AppCompatActivity
             ProfileFragment profileFragment = new ProfileFragment();
             profileFragment.setArguments(bundle);
 
-
             fragmentTransaction.replace(R.id.home_fragment,profileFragment)
                     .addToBackStack(null)
                     .commit();
+
 
         } else if (id == R.id.nav_log_out) {
             AlertDialog alert = new AlertDialog.Builder(this)
@@ -290,8 +331,10 @@ public class testActivity extends AppCompatActivity
 
 
         } else if (id == R.id.nav_contact_us) {
+            Toast.makeText(this,"Accion en proceso de creacion",Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_about_us) {
+            Toast.makeText(this,"Accion en proceso de creacion",Toast.LENGTH_SHORT).show();
 
         }
 

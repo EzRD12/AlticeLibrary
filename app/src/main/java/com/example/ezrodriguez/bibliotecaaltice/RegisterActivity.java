@@ -16,10 +16,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -27,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private DatabaseReference reference;
     private EditText mName,mLastName,mEmail, mUsername, mPassword;
     private static final int CLIENT = 1;
+    private boolean CONFIRM=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,23 +52,61 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View view) {
-        mAuth.createUserWithEmailAndPassword(mEmail.getText().toString()
-                , mPassword.getText().toString())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            saveUserData(user);
-                            goMainScreen();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(RegisterActivity.this, "User creation failed",
-                                    Toast.LENGTH_SHORT).show();
+        if(mLastName.getText().toString().isEmpty() || mUsername.getText().toString().isEmpty()
+                || mEmail.getText().toString().isEmpty() || mName.getText().toString().isEmpty()
+                || mPassword.getText().toString().isEmpty()){
+            Toast.makeText(this,"Faltan campos por llenar para completar el registro",Toast.LENGTH_SHORT).show();
+        }else {
+            reference = FirebaseDatabase.getInstance().getReference().child("userProfile");
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Iterable<DataSnapshot> children =
+                            dataSnapshot.getChildren();
+                    UserProfile userProfile;
+                    List<UserProfile> list = new ArrayList<>();
+                    for (DataSnapshot child : children) {
+                        userProfile = child.getValue(UserProfile.class);
+                        if (userProfile.getEmail().equals(mEmail.getText().toString())) {
+                            list.add(userProfile);
                         }
-
                     }
-                });
+                    if(list.isEmpty()){
+                        CONFIRM=true;
+                    }else{
+                        CONFIRM=false;
+                        Toast.makeText(getApplicationContext(), "Existe una cuenta asociada con el correo electronico" +
+                                " ingresado, intente con otro.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            if(CONFIRM) {
+                mAuth.createUserWithEmailAndPassword(mEmail.getText().toString()
+                        , mPassword.getText().toString())
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    saveUserData(user);
+                                    goMainScreen();
+                                } else {
+                                    // If sign in fails, display a message to the user.
+                                    Toast.makeText(RegisterActivity.this, "User creation failed",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+                        });
+                CONFIRM= false;
+            }
+
+        }
     }
 
     private void saveUserData(FirebaseUser user) {

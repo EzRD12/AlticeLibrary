@@ -2,6 +2,7 @@ package com.example.ezrodriguez.bibliotecaaltice;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -29,12 +30,10 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class CatalogFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -55,7 +54,6 @@ public class CatalogFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment CatalogFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static CatalogFragment newInstance(String param1, String param2) {
         CatalogFragment fragment = new CatalogFragment();
         Bundle args = new Bundle();
@@ -92,7 +90,6 @@ public class CatalogFragment extends Fragment {
 
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -117,7 +114,6 @@ public class CatalogFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
@@ -173,33 +169,13 @@ public class CatalogFragment extends Fragment {
 
                 }
             });
+            holder.button_add_book.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
-//            holder.contenido.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    String[] dataBook = new String[]{item.getAutor()
-//                            , item.getBody()
-//                            , item.getTitle()
-//                            , item.getUrl()};
-//                    long[] priceBook = new long[]{item.getPrice()
-//                            , item.getRental()};
-//                    Bundle bundle = new Bundle();
-//                    bundle.putStringArray("dataBook",dataBook);
-//                    bundle.putLongArray("pricesBook",priceBook);
-//
-//                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//
-//                    BookFragment bookFragment = new BookFragment();
-//                    bookFragment.setArguments(bundle);
-//
-//
-//                    fragmentTransaction.replace(R.id.home_fragment,bookFragment)
-//                            .addToBackStack(null)
-//                            .commit();
-//
-//                }
-//            });
+                }
+            });
+
 
         }
 
@@ -214,6 +190,7 @@ public class CatalogFragment extends Fragment {
         private final TextView section_name;
         private final ImageView section_image;
         private final LinearLayout category_content;
+        private final FloatingActionButton button_add_book;
 
 
         public myRecyclerViewHolder(View itemView) {
@@ -221,6 +198,7 @@ public class CatalogFragment extends Fragment {
             section_name = itemView.findViewById(R.id.section_categorie);
             section_image = itemView.findViewById(R.id.image_categorie);
             category_content = itemView.findViewById(R.id.category_content);
+            button_add_book = itemView.findViewById(R.id.button_add_book);
 
 
         }

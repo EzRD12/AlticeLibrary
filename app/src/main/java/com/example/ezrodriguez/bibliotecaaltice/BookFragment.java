@@ -1,19 +1,30 @@
 package com.example.ezrodriguez.bibliotecaaltice;
 
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ezrodriguez.bibliotecaaltice.entity.Book;
 import com.example.ezrodriguez.bibliotecaaltice.entity.Favorite;
+import com.example.ezrodriguez.bibliotecaaltice.entity.Purchase;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -36,20 +47,25 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class BookFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
     private TextView title, autor, price, rental, body;
     private ImageView portada;
+    private Button purchase, rent;
     private FloatingActionButton button_fav;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthListener;
     private FirebaseUser user;
+    private FirebaseDatabase database;
+    private String[] dataBook;
+    private DatabaseReference reference;
+    private Bundle bundle;
+
+
     boolean hasFav = false;
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -67,7 +83,6 @@ public class BookFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment BookFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static BookFragment newInstance(String param1, String param2) {
         BookFragment fragment = new BookFragment();
         Bundle args = new Bundle();
@@ -89,6 +104,33 @@ public class BookFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        final String titulo = title.getText().toString();
+        user = mFirebaseAuth.getCurrentUser();
+
+
+        Query query = FirebaseDatabase.getInstance().getReference()
+                .child("favorites").orderByChild("user_key").equalTo(user.getUid());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> children =
+                        dataSnapshot.getChildren();
+                Favorite favoriteGet;
+                for (DataSnapshot child : children) {
+                    favoriteGet = child.getValue(Favorite.class);
+                    if(favoriteGet.getBook_title().equals(titulo)) {
+                        hasFav = true;
+                        button_fav.setImageResource(R.mipmap.ic_favorite_book);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -98,7 +140,12 @@ public class BookFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_book, container, false);
 
+        DatabaseReference bookRef = FirebaseDatabase.getInstance().getReference().child("books");
+        bookRef.keepSynced(true);
+
+
         mFirebaseAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
         mFirebaseAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -114,39 +161,126 @@ public class BookFragment extends Fragment {
         rental = view.findViewById(R.id.book_rental_detail);
         portada = view.findViewById(R.id.book_portada_detail);
         button_fav = view.findViewById(R.id.book_fav);
+        purchase = view.findViewById(R.id.button_purchase);
+        rent = view.findViewById(R.id.button_rent);
+
+        purchase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog alert = new AlertDialog.Builder(getContext())
+                        .setTitle("COMPRA")
+                        .setMessage("¿Esta seguro de realizar su compra?")
+                        .setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if(!dataBook[4].equals("0")) {
+
+                                    Query query = FirebaseDatabase.getInstance().getReference()
+                                            .child("books")
+                                            .orderByChild("title")
+                                            .equalTo(title.getText().toString());
+                                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            Iterable<DataSnapshot> children =
+                                                    dataSnapshot.getChildren();
+                                            Book book;
+                                            for (DataSnapshot child : children) {
+                                                book = child.getValue(Book.class);
+                                                book.setQuantitySales(Integer.parseInt(dataBook[4]) - 1);
+                                                reference = FirebaseDatabase.getInstance().getReference("books");
+                                                reference.child(dataBook[6]).setValue(book);
+                                                dataBook[4] = String.valueOf(Integer.parseInt(dataBook[4]) - 1);
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                    user = mFirebaseAuth.getCurrentUser();
+                                    Purchase purchase = new Purchase();
+                                    purchase.setBook_title(title.getText().toString());
+                                    purchase.setBook_autor(autor.getText().toString());
+                                    purchase.setUser_key(user.getUid());
+
+                                    reference = FirebaseDatabase.getInstance().getReference("purchase");
+                                    String key = reference.push().getKey();
+                                    reference.child(key).setValue(purchase);
+
+                                    AlertDialog alert = new AlertDialog.Builder(getContext())
+                                            .setTitle("Confirmacion de compra")
+                                            .setMessage("Felicidades, tu compra fue un exito, para retirar el producto pase por el " +
+                                                    "area de ventas de la Biblioteca Altice y presente su codigo de compra: " +
+                                                    key)
+                                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) { }
+                                            })
+                                            .create();
+                                    alert.show();
+
+                                }else{
+                                    Snackbar.make(getView(), "Lo sentimos, todos los libros de "+ dataBook[2]+ " se han agotado por el momento," +
+                                            "intente solicitar su alquiler por el tiempo que guste", Snackbar.LENGTH_LONG)
+                                            .setAction("Action", null).show();
+                                }
+
+                            }
+                        })
+                        .setNegativeButton("CANCELAR", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) { }
+                        })
+                        .create();
+                alert.show();
+            }
+        });
 
         button_fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!hasFav) {
-                    button_fav.setImageResource(R.mipmap.ic_favorite_book);
+                final DatabaseReference myRef = database.getReference().child("favorites");
+                final String[] id = {""};
 
-                    final String titulo = title.getText().toString();
+                    user = mFirebaseAuth.getCurrentUser();
 
-                    Query query = FirebaseDatabase.getInstance().getReference("favorites")
-                            .child("uiIdUser").equalTo(user.getUid());
+                    Query query = FirebaseDatabase.getInstance().getReference()
+                            .child("favorites").orderByChild("user_key").equalTo(user.getUid());
                     query.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> children =
                                     dataSnapshot.getChildren();
                             Favorite favoriteGet;
+                            String titulo = title.getText().toString();
+                            Favorite favorite = new Favorite();
                             List<Favorite> list = new ArrayList<>();
                             for (DataSnapshot child : children) {
                                 favoriteGet = child.getValue(Favorite.class);
-                                if(favoriteGet.getBook_title() == titulo)
+
+                                if(favoriteGet.getBook_title().equals(titulo)) {
                                     list.add(favoriteGet);
+                                    button_fav.setImageResource(R.mipmap.ic_unfavorite);
+                                    favorite.setBook_title(titulo);
+                                    favorite.setUser_key(user.getUid());
+                                    myRef.child(child.getKey()).setValue(null);
+                                    hasFav = true;
+                                    break;
+                                }else{
+                                    hasFav = false;
+                                }
                             }
-                            FirebaseDatabase database = FirebaseDatabase.getInstance();
-                            DatabaseReference myRef = database.getReference("favorites");
-                            if(list.isEmpty()){
+                            if(!hasFav) {
                                 // Write a message to the database
-                                user = mFirebaseAuth.getCurrentUser();
-                                Favorite favorite = new Favorite();
+                                button_fav.setImageResource(R.mipmap.ic_favorite_book);
                                 favorite.setBook_title(titulo);
                                 favorite.setUser_key(user.getUid());
 
                                 myRef.push().setValue(favorite);
+                                hasFav = !hasFav;
                             }
                         }
 
@@ -156,14 +290,10 @@ public class BookFragment extends Fragment {
                         }
                     });
 
-                }else { button_fav.setImageResource(R.mipmap.ic_unfavorite); }
-
-                hasFav = !hasFav;
             }
         });
-
         Bundle bundle = getArguments();
-        String[] dataBook = bundle.getStringArray("dataBook");
+        dataBook = bundle.getStringArray("dataBook");
         long[] priceBook = bundle.getLongArray("pricesBook");
 
         setDataBook(dataBook,priceBook);
@@ -176,7 +306,7 @@ public class BookFragment extends Fragment {
         autor.setText(dataBook[0]);
         body.setText(dataBook[1]);
         title.setText(dataBook[2]);
-        price.setText(String.valueOf(priceBook[0])+ " RD$");
+        price.setText(new StringBuilder().append(String.valueOf(priceBook[0])).append(" RD$").toString());
         rental.setText(String.valueOf(priceBook[1])+ " RD$");
 
         Glide.with(getContext())
@@ -185,7 +315,6 @@ public class BookFragment extends Fragment {
     }
 
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -209,7 +338,6 @@ public class BookFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

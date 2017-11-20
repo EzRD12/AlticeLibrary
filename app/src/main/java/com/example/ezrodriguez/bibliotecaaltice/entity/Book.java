@@ -6,6 +6,9 @@ package com.example.ezrodriguez.bibliotecaaltice.entity;
 
 public class Book {
 
+
+
+    private String key;
     private String autor;
     private String body;
     private int quantity;
@@ -15,6 +18,15 @@ public class Book {
     private String resumen;
     private String title;
     private String url;
+    private String category;
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
 
     public String getAutor() {
         return autor;
@@ -87,4 +99,16 @@ public class Book {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+
+
+
 }

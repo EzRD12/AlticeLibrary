@@ -3,11 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:design="http://schemas.android.com/apk/res-auto"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context="com.example.ezrodriguez.bibliotecaaltice.HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/home_recyclerView"
@@ -19,6 +17,7 @@
     </android.support.v7.widget.RecyclerView>
 
     <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bar_home"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

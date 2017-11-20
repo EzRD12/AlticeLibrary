@@ -3,13 +3,17 @@ package com.example.ezrodriguez.bibliotecaaltice;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -19,6 +23,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ezrodriguez.bibliotecaaltice.entity.Book;
+import com.example.ezrodriguez.bibliotecaaltice.entity.Favorite;
 import com.example.ezrodriguez.bibliotecaaltice.entity.UserProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -42,21 +47,23 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private RecyclerView mRecyclerView;
-    private FloatingActionButton buttonToAdd;
-
+    private BottomNavigationView mBottomNavigation;
 
     private OnFragmentInteractionListener mListener;
     private DatabaseReference reference;
     private FirebaseAuth mFirebaseAuth;
+    private FirebaseDatabase database;
+    private FirebaseAuth.AuthStateListener mFirebaseAuthListener;
+    private FirebaseUser user;
+    private int idSelected;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -70,7 +77,6 @@ public class HomeFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment HomeFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -97,6 +103,39 @@ public class HomeFragment extends Fragment {
         mRecyclerView =  view.findViewById(R.id.home_recyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(super.getContext()
                 ,LinearLayoutManager.VERTICAL,false));
+        mBottomNavigation = view.findViewById(R.id.bar_home);
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        idSelected = R.id.books_bar_general;
+        reference = FirebaseDatabase.getInstance().getReference("books");
+
+
+        database = FirebaseDatabase.getInstance();
+        mFirebaseAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+                user = firebaseAuth.getCurrentUser();
+            }
+        };
+
+
+        mBottomNavigation.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                idSelected = item.getItemId();
+
+
+                switch (idSelected){
+                    case R.id.books_bar_fav:
+                        getBooksFav();
+                        break;
+                    default:
+                        getBooksGeneral();
+                        break;
+
+                }
+            }
+        });
         //buttonToAdd = view.findViewById(R.id.button_add_books);
 
         reference = FirebaseDatabase.getInstance().getReference("books");
@@ -104,7 +143,63 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
+    private void getBooksFav(){
+        user = mFirebaseAuth.getCurrentUser();
+        Query query = FirebaseDatabase.getInstance().getReference()
+                .child("favorites").orderByChild("user_key").equalTo(user.getUid());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> children =
+                        dataSnapshot.getChildren();
+                Favorite favorite = new Favorite();
+                final List<Favorite> list = new ArrayList<>();
+                for (DataSnapshot child : children) {
+                    favorite = child.getValue(Favorite.class);
+                    list.add(favorite);
+
+                }
+                if (!children.equals(null)){
+                    reference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            // This method is called once with the initial value and again
+                            // whenever data at this location is updated.
+                            Iterable<DataSnapshot> children =
+                                    dataSnapshot.getChildren();
+                            Book book;
+                            List<Book> lista = new ArrayList<>();
+                            for (DataSnapshot child : children) {
+                                book = child.getValue(Book.class);
+                                for (Favorite fav : list) {
+                                    if(book.getTitle().equals(fav.getBook_title())){
+                                        lista.add(book);
+                                    }
+
+                                }
+                            }
+                            mRecyclerView.setAdapter(new myRecyclerViewAdapter(lista));
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                            // Failed to read value
+                            Toast.makeText(getContext()
+                                    ,"Failed to read list of books."
+                                    ,Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -138,6 +233,7 @@ public class HomeFragment extends Fragment {
 
         if(bundle.getString("Catalog") != null){
     //        buttonToAdd.setVisibility(View.VISIBLE);
+            mBottomNavigation.setVisibility(View.GONE);
             Query query = referenceCatalog.child("books")
                     .orderByChild("category")
                     .equalTo(bundle.getString("position"));
@@ -163,36 +259,54 @@ public class HomeFragment extends Fragment {
                 }
             });
         }else{
+            mBottomNavigation.setVisibility(View.VISIBLE);
 //            buttonToAdd.setVisibility(View.GONE);
-            reference.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    // This method is called once with the initial value and again
-                    // whenever data at this location is updated.
-                    Iterable<DataSnapshot> children =
-                            dataSnapshot.getChildren();
-                    Book book;
-                    List<Book> list = new ArrayList<>();
-                    for (DataSnapshot child : children) {
-                        book = child.getValue(Book.class);
-                        list.add(book);
-                    }
-                    mRecyclerView.setAdapter(new myRecyclerViewAdapter(list));
-                }
+            switch (mBottomNavigation.getSelectedItemId()){
+                case R.id.books_bar_fav:
+                    getBooksFav();
+                    break;
+                default:
+                    getBooksGeneral();
+                    break;
 
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    // Failed to read value
-                    Toast.makeText(getContext()
-                            ,"Failed to read list of books."
-                            ,Toast.LENGTH_SHORT).show();
-                }
-            });
-
+            }
         }
 
         // Read from the database
     }
+
+
+    private void getBooksGeneral(){
+        reference = FirebaseDatabase.getInstance().getReference("books");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                Iterable<DataSnapshot> children =
+                        dataSnapshot.getChildren();
+                Book book;
+                List<Book> list = new ArrayList<>();
+                for (DataSnapshot child : children) {
+                    book = child.getValue(Book.class);
+                    book.setKey(child.getKey());
+                    list.add(book);
+                }
+
+                mRecyclerView.setAdapter(new myRecyclerViewAdapter(list));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Toast.makeText(getContext()
+                        ,"Failed to read list of books."
+                        ,Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -205,7 +319,6 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
@@ -241,7 +354,10 @@ public class HomeFragment extends Fragment {
                     String[] dataBook = new String[]{item.getAutor()
                                                 , item.getBody()
                                                 , item.getTitle()
-                                                , item.getUrl()};
+                                                , item.getUrl()
+                                                ,String.valueOf(item.getQuantitySales())
+                                                ,String.valueOf(item.getQuantity())
+                                                ,item.getKey()};
                     long[] priceBook = new long[]{item.getPrice()
                                                 , item.getRental()};
                     Bundle bundle = new Bundle();

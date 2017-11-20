@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_marginHorizontal="5sp"
     android:id="@+id/category_content"
     xmlns:android="http://schemas.android.com/apk/res/android">
-<LinearLayout
+
+    <LinearLayout
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -28,6 +30,21 @@
         android:layout_marginLeft="10sp"
         android:fontFamily="sans-serif-light"
         />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/button_add_book"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="@dimen/fab_margin"
+                app:srcCompat="@mipmap/ic_floating_add"
+                android:visibility="gone"
+                />
+        </LinearLayout>
+
 </LinearLayout>
     <View
         android:layout_width="match_parent"

@@ -19,10 +19,8 @@
     <string name="register_mail">Mail</string>
     <string name="login_username">Mail Address</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="lbl_mensaje_editoriales">Todos los libros y articulos son de origen oficial de editoriales autorizados</string>
-    <string name="my_books">Mis libros</string>
+    <string name="my_books">General</string>
     <string name="fav">Favoritos</string>
 
 </resources>

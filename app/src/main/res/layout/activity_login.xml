@@ -26,14 +26,22 @@
             android:paddingLeft="30sp"
             android:paddingRight="30sp"
             >
-
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
             <EditText
                 android:id="@+id/login_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_username"
                 android:layout_marginTop="20sp"
+                android:inputType="text"
                 />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
             <EditText
                 android:id="@+id/login_password"
                 android:layout_width="match_parent"
@@ -41,6 +49,8 @@
                 android:hint="@string/lblPassword"
                 android:inputType="textPassword"
                 />
+
+            </android.support.design.widget.TextInputLayout>
 
             <TextView
                 android:layout_width="match_parent"
